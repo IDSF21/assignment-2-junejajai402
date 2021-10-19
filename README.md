@@ -31,7 +31,7 @@ After choosing the dataset for the assignment, we first sat down together to thi
 
 data.csv - Spotify dataset taken from Kaggle - https://www.kaggle.com/tawejssh/spotify-dataset-eda-insights/data
 
-cleaning_notebook - Jupyter Notebook with the steps used to clean the dataset for further exploration and data analysis. Some of the steps for cleaning and visualization were inspired from this notebook - https://www.kaggle.com/tawejssh/spotify-dataset-eda-insights/notebook
+cleaning_notebook.ipynb - Jupyter Notebook with the steps used to clean the dataset for further exploration and data analysis. Some of the steps for cleaning and visualization were inspired from this notebook - https://www.kaggle.com/tawejssh/spotify-dataset-eda-insights/notebook
 
 cleanData_spotify.csv - The dataset obtained after cleaning
 
