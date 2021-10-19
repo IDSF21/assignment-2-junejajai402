@@ -27,16 +27,26 @@ try:
     if type(df['Genre'][1]) == str:
         df['Genre'] = df['Genre'].apply(lambda x: ast.literal_eval(x))
     df2 = df.explode('Genre')
-    actions = ["Select Action", "See Top Tracks", "See Top Artists", "See Top Genres", "Compare Stream Evolution of Artists"]
-    actionToDo = st.sidebar.selectbox('Select what you want to see:', actions)
+    
+    actions = ["Select Action", "Top Tracks being Played", "Top Favorite Artists", "Most Loved Genres", "Compare Stream Evolution of Artists"]
+    actionToDo = st.sidebar.selectbox('Explore the data!', actions)
 
+    streams = str(df['Streams'].sum(axis=0))
     if actionToDo == "Select Action":
         st.title("Welcome to the Spotify Data Analytics Dashboard!")
+
+        
+        st.metric("Total Streams since 2017", streams, delta="Constantly Increasing!!", delta_color='normal')
+
+        st.info("This dashboard was developed by Keertana Kamesh and Jaideep Juneja as a group for Homework 2 on the Interactive Data Science Course. \
+        Spotify is the largest on-demand music service and uses big data for running machine learning techniques to deliver a unique and personalized music listening experience. \
+        Being music-lovers and everyday users of the app, we chose to work on this dataset because of how relatable it was and to explore how the features are used to provide a personalized user experience to a listener. \
+        Click on the side-bar to explore the data!")
 
     else:
         st.title(actionToDo)
 
-    if actionToDo == "See Top Tracks":
+    if actionToDo == "Top Tracks being Played":
         col1, col2 = st.columns(2)
         filterChoice = col1.radio('Select Genre/Artist', ['Genre', 'Artist'])
         filterElem = col2.radio('Select number of tracks', ['Top 5', 'Top 10', 'Top 25'])
@@ -55,15 +65,15 @@ try:
             st.write("\n\n")
             printData = dat.sort_values('TotalStreams', ascending=False).drop_duplicates('Track Name').head(noTracks)
 
-            fig = px.bar(printData, y='Track Name', x='TotalStreams', text='TotalStreams', width=1100, height=500)
+            fig = px.bar(printData, y='Track Name', x='TotalStreams', text='TotalStreams', color = 'TotalStreams', width=1000, height=500)
             fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
             fig.update_layout(yaxis=dict(autorange="reversed"))
             fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
             st.plotly_chart(fig)
 
-            table = go.Figure(data=go.Table(columnwidth = [3,2], header=dict(values=list(printData.columns), align="center"), cells=dict(values=[printData["Track Name"], printData["TotalStreams"]])))
-            table.update_layout(margin = dict(l=0, r=0, b=0, t=0))
-
+            table = go.Figure(data=go.Table(columnwidth = [3,2], header=dict(fill_color = "#92959E", values=list(printData.columns), align="center"), cells=dict(values=[printData["Track Name"], printData["TotalStreams"]], height=30)))
+            table.update_traces(cells_font=dict(size = 18))
+            table.update_layout(width=1000, margin = dict(l=0, r=0, b=0, t=0), font=dict(size=18))
             st.write(table)
             
 
@@ -78,18 +88,18 @@ try:
             st.write("\n\n")
             printData = data.sort_values('TotalStreams', ascending=False).drop_duplicates('Track Name').head(noTracks)
 
-            fig = px.bar(printData, y='Track Name', x='TotalStreams', text='TotalStreams', width=1100, height=500)
+            fig = px.bar(printData, y='Track Name', x='TotalStreams', text='TotalStreams', color = 'TotalStreams', width=1000, height=500)
             fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
             fig.update_layout(yaxis=dict(autorange="reversed"))
             fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
             st.plotly_chart(fig)
 
-            table = go.Figure(data=go.Table(columnwidth = [3,2], header=dict(values=list(printData.columns), align="center"), cells=dict(values=[printData["Track Name"], printData["TotalStreams"]])))
-            table.update_layout(margin = dict(l=0, r=0, b=0, t=0))
-
+            table = go.Figure(data=go.Table(columnwidth = [3,2], header=dict(fill_color = "#92959E", values=list(printData.columns), align="center"), cells=dict(values=[printData["Track Name"], printData["TotalStreams"]], height=30)))
+            table.update_traces(cells_font=dict(size = 18))
+            table.update_layout(width=1000, margin = dict(l=0, r=0, b=0, t=0), font=dict(size=18))
             st.write(table)
     
-    if actionToDo == "See Top Artists":
+    if actionToDo == "Top Favorite Artists":
         filterChoice = st.radio('Select number of Artists', ['Top 5', 'Top 10', 'Top 25'])        
         intChoice = int(filterChoice.split()[-1])
 
@@ -101,7 +111,7 @@ try:
         topArtists1 = topArtists.head(intChoice)   #get artists from dataframe
         artists = topArtists1['Artist'].tolist()
 
-        fig = px.bar(topArtists1, y='Artist', x='TotalStreams', text='TotalStreams', width=1100, height=500)
+        fig = px.bar(topArtists1, y='Artist', x='TotalStreams', text='TotalStreams', color = 'TotalStreams', width=1000, height=500)
         fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
         fig.update_layout(yaxis=dict(autorange="reversed"))
         fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
@@ -113,7 +123,7 @@ try:
             .query("(Artist == @a)")\
             .groupby(["Track Name"], as_index = False)\
             .agg(TotalStreams = ("Streams", "sum"))
-            
+            top.write("Top Tracks by {}".format(a))
             tracks1 = tracks.sort_values('TotalStreams', ascending=False).drop_duplicates('Track Name').head(3)
             tracks2 = tracks1["Track Name"].tolist()
             for t in tracks2:
@@ -121,7 +131,7 @@ try:
 
         #add a bar graph with artists vs. total streams or pie chart with artists and percentage genre
 
-    if actionToDo == "See Top Genres":
+    if actionToDo == "Most Loved Genres":
         #filterChoice = st.radio('Select Genre/Artist', ['Genre', 'Artist'])
         filterChoice = st.radio('Select number of Genres', ['Top 5', 'Top 10', 'Top 25'])        
         intChoice1 = int(filterChoice.split()[-1])
@@ -134,7 +144,7 @@ try:
         topGenres1 = topGenres.head(intChoice1)   #get artists from dataframe
         genres = topGenres1['Genre'].tolist()
 
-        fig = px.bar(topGenres1, y='Genre', x='TotalStreams', text='TotalStreams', width=1100, height=500)
+        fig = px.bar(topGenres1, y='Genre', x='TotalStreams', text='TotalStreams', color = 'TotalStreams', width=1000, height=500)
         fig.update_traces(texttemplate='%{text:.2s}', textposition='outside')
         fig.update_layout(yaxis=dict(autorange="reversed"))
         fig.update_layout(uniformtext_minsize=8, uniformtext_mode='hide')
@@ -146,41 +156,48 @@ try:
             .query("(Genre == @g)")\
             .groupby(["Track Name"], as_index = False)\
             .agg(TotalStreams = ("Streams", "sum"))
-            
+            top.write("Top Tracks in {}".format(g))
             tracks1 = tracks.sort_values('TotalStreams', ascending=False).drop_duplicates('Track Name').head(3)
             tracks2 = tracks1["Track Name"].tolist()
             for t in tracks2:
                 top.write(t)
-        
-        #add a bar graph with genres vs. total streams
 
     if actionToDo == "Compare Stream Evolution of Artists":
-        artistsSelected = st.multiselect("Choose Artists", list(df['Artist'].drop_duplicates()), ["Ariana Grande", "Justin Bieber"])
-        if not artistsSelected:
-            st.error("Please select atleast one artist.")
+
+        numberArtists = st.select_slider( 'Select number of Artists', options=['1', '2', '3', '4', '5'])
+        number = int(numberArtists)
+
+        if number <= 1:
+            st.error("Select atleast 2 artists to compare")
         else:
-            #st.write(df.head())
-            top5Artists = df\
-            .groupby(["Artist"], as_index = False)\
-            .agg(TotalStreams = ("Streams", "sum"))\
-            .sort_values('TotalStreams', ascending=False).head(5)
+            artistsSelected = st.multiselect("Choose Artists", list(df['Artist'].drop_duplicates()), ["Ariana Grande", "Justin Bieber"])
 
-            top5Artists = top5Artists["Artist"]
+            if not artistsSelected:
+                st.error("Please select atleast {} artist.".format(number))
+            if len(artistsSelected) != number:
+                st.error("Select only {} artists".format(number))            
+            
+            else:
 
-            #fig = go.Figure()
-            TotalStreamsTop5 = df\
-            .query("(Artist.isin(@top5Artists))")\
-            .groupby(["Year","Artist"], as_index = False)\
-            .agg(TotalStreams = ("Streams", "sum"))
+                df7 = df[df['Artist'].isin(artistsSelected)]
+                top5Artists = df7\
+                .groupby(["Artist"], as_index = False)\
+                .agg(TotalStreams = ("Streams", "sum"))\
+                .sort_values('TotalStreams', ascending=False)
 
-            for artist in TotalStreamsTop5.Artist.unique():
-                #print(artist)
-                artist_data = TotalStreamsTop5.query("(Artist == @artist)")
-                #print(artist_data)
-                #fig.add_trace(go.Scatter(x=artist_data['Year'], y=artist_data['TotalStreams'], name=artist))
+                top5Artists = top5Artists.Artist
+                
+                TotalStreamsTop5 = df7\
+                .groupby(["Year","Artist"], as_index = False)\
+                .agg(TotalStreams = ("Streams", "sum"))
 
-            #fig.update_layout(xaxis_title="Date", yaxis_title="Streams", title="Cumulative Streams Evolution of Spotify Top 10 Artists")
-            #st.pyplot()
+                fig = go.Figure()
+                for artist in TotalStreamsTop5.Artist.unique():
+                    artist_data = TotalStreamsTop5.query("(Artist == @artist)").groupby(["Year","Artist"], as_index = False).agg(TotalStreams = ("TotalStreams", "sum"))
+                    fig.add_trace(go.Scatter(x=artist_data['Year'], y=artist_data['TotalStreams'], name=artist))
+
+                fig.update_layout(xaxis_title="Date", yaxis_title="Streams", title="Cumulative Streams Evolution of Selected Artists", width=1000, height=500)
+                st.plotly_chart(fig)
     
 except URLError as e:
     st.error(
